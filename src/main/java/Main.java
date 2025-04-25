@@ -10,11 +10,11 @@ public class Main {
         UserMapper mapper = mySqlSessionFactory.getMapper(UserMapper.class);
 
         // 测试查询
-        User user = mapper.selectById(2);
+        User user = mapper.selectById(3);
         System.out.println("查询结果: " + user);
 
         // 测试更新
-        User updatedUser = mapper.updateUser(3, "新名字", 25);
+        User updatedUser = mapper.updateUser(3, "新名字1", 25);
         System.out.println("更新结果: " + updatedUser);
 
         List<User> users = mapper.selectUserByAgeRange(10,30);
