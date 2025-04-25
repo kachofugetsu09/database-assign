@@ -34,35 +34,107 @@ public abstract class AbstractSqlStrategy implements SqlExecutionStrategy {
     }
 
     protected Object parseResult(ResultSet rs, Class<?> returnType) throws Exception {
-        Constructor<?> constructor = returnType.getConstructor();
-        Object result = constructor.newInstance();
-
+        Object result = returnType.getDeclaredConstructor().newInstance();
         ResultSetMetaData metaData = rs.getMetaData();
         int columnCount = metaData.getColumnCount();
 
         for (int i = 1; i <= columnCount; i++) {
-            String columnName = metaData.getColumnLabel(i);
+            String columnName = metaData.getColumnName(i);
+            // 将下划线格式转换为驼峰格式
+            String propertyName = convertToCamelCase(columnName);
+
             try {
-                Field field = returnType.getDeclaredField(columnName);
-                field.setAccessible(true);
-                Object value = rs.getObject(i);
-                field.set(result, value);
-            } catch (NoSuchFieldException e) {
-                continue;
+                // 获取setter方法名
+                String setterName = "set" + propertyName.substring(0, 1).toUpperCase() + propertyName.substring(1);
+                // 获取setter方法
+                java.lang.reflect.Method setter = returnType.getMethod(setterName, getColumnType(metaData, i));
+
+                // 获取列值并设置到对象中
+                Object value = getColumnValue(rs, i, metaData.getColumnType(i));
+                setter.invoke(result, value);
+            } catch (NoSuchMethodException e) {
+                // 如果找不到对应的setter方法，跳过这个字段
+                System.out.println("Warning: No setter found for property: " + propertyName);
             }
         }
         return result;
     }
 
-    protected List<?> parseResultList(ResultSet rs, Method method) throws Exception {
-        List<Object> results = new ArrayList<>();
-        Type returnType = method.getGenericReturnType();
-        Class<?> entityType = (Class<?>) ((ParameterizedType) returnType).getActualTypeArguments()[0];
+    // 添加一个辅助方法来将下划线格式转换为驼峰格式
+    private String convertToCamelCase(String columnName) {
+        StringBuilder result = new StringBuilder();
+        boolean nextUpper = false;
+
+        for (int i = 0; i < columnName.length(); i++) {
+            char currentChar = columnName.charAt(i);
+            if (currentChar == '_') {
+                nextUpper = true;
+            } else {
+                if (nextUpper) {
+                    result.append(Character.toUpperCase(currentChar));
+                    nextUpper = false;
+                } else {
+                    result.append(Character.toLowerCase(currentChar));
+                }
+            }
+        }
+        return result.toString();
+    }
+
+    // 添加一个辅助方法来获取列的类型
+    private Class<?> getColumnType(ResultSetMetaData metaData, int columnIndex) throws SQLException {
+        int type = metaData.getColumnType(columnIndex);
+        switch (type) {
+            case Types.INTEGER:
+                return Integer.class;
+            case Types.VARCHAR:
+            case Types.CHAR:
+                return String.class;
+            case Types.DATE:
+                return java.util.Date.class;
+            // 添加其他类型的映射...
+            default:
+                return Object.class;
+        }
+    }
+
+    // 添加一个辅助方法来获取列的值
+    private Object getColumnValue(ResultSet rs, int columnIndex, int columnType) throws SQLException {
+        switch (columnType) {
+            case Types.INTEGER:
+                return rs.getInt(columnIndex);
+            case Types.VARCHAR:
+            case Types.CHAR:
+                return rs.getString(columnIndex);
+            case Types.DATE:
+                return rs.getDate(columnIndex);
+            // 添加其他类型的处理...
+            default:
+                return rs.getObject(columnIndex);
+        }
+    }
+
+    protected List<Object> parseResultList(ResultSet rs, Method method) throws Exception {
+        List<Object> resultList = new ArrayList<>();
+        Class<?> returnType = method.getReturnType();
+        Class<?> genericType = getGenericType(method);
 
         while (rs.next()) {
-            results.add(parseResult(rs, entityType));
+            resultList.add(parseResult(rs, genericType));
         }
-        return results;
+        return resultList;
+    }
+
+    private Class<?> getGenericType(Method method) {
+        // 获取List的泛型类型
+        java.lang.reflect.Type returnType = method.getGenericReturnType();
+        if (returnType instanceof java.lang.reflect.ParameterizedType) {
+            java.lang.reflect.Type[] typeArguments = ((java.lang.reflect.ParameterizedType) returnType).getActualTypeArguments();
+            if (typeArguments.length > 0) {
+                return (Class<?>) typeArguments[0];
+            }
+        }
+        return Object.class;
     }
 
     protected Object parseInsertResult(Object[] args, Class<?> returnType) throws Exception {

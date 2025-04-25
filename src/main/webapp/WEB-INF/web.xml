@@ -5,7 +5,7 @@
                              http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
          version="4.0">
 
-    <display-name>用户信息管理系统</display-name>
+    <display-name>学生管理系统</display-name>
 
     <welcome-file-list>
         <welcome-file>index.html</welcome-file>
