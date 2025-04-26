@@ -6,6 +6,7 @@ import annotations.SQL;
 import annotations.Where;
 import entity.Student;
 
+import java.util.Date;
 import java.util.List;
 
 public interface StudentMapper {
@@ -15,7 +16,7 @@ public interface StudentMapper {
     Student insertStudent(@Param("name") String name,
                          @Param("gender") String gender,
                          @Param("age") int age,
-                         @Param("enrollmentDate") String enrollmentDate);
+                         @Param("enrollmentDate") Date enrollmentDate);
 
     @Where("student_id = #{studentId}")
     Student deleteStudentById(@Param("studentId") int studentId);
@@ -25,7 +26,7 @@ public interface StudentMapper {
                          @Param("name") String name,
                          @Param("gender") String gender,
                          @Param("age") int age,
-                         @Param("enrollmentDate") String enrollmentDate);
+                         @Param("enrollmentDate") Date enrollmentDate);
 
     @SQL("SELECT * FROM student WHERE age BETWEEN #{minAge} AND #{maxAge}")
     List<Student> selectStudentsByAgeRange(@Param("minAge") int minAge, @Param("maxAge") int maxAge);

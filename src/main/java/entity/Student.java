@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 @Table(tableName = "student")
@@ -15,23 +16,26 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Student {
-    // 确保JSON序列化时使用studentId字段名
     @SerializedName("studentId")
     private Integer studentId;
 
     private String name;
     private String gender;
     private Integer age;
-    private Date enrollmentDate;
+    @SerializedName("enrollmentDate")
+    private Date enrollmentDate;  // Gson 会自动处理
 
     @Override
     public String toString() {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+        String dateStr = enrollmentDate != null ? sdf.format(enrollmentDate) : "null";
+
         return "Student{" +
                 "studentId=" + studentId +
                 ", name='" + name + '\'' +
-                ", gender=" + gender +
+                ", gender='" + gender + '\'' +
                 ", age=" + age +
-                ", enrollmentDate=" + enrollmentDate +
+                ", enrollmentDate=" + dateStr +
                 '}';
     }
 }

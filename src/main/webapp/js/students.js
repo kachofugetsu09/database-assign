@@ -29,6 +29,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 初始化页面
     initPage();
 
+    // 阻止表单默认提交行为，防止重复请求
+    studentForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+    });
+
     async function testApiConnection() {
         try {
             const response = await fetch(STUDENTS_API);
@@ -48,49 +53,30 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 保存学生
-    saveStudentBtn.addEventListener('click', async () => {
+    saveStudentBtn.addEventListener('click', async (event) => {
+        // 阻止可能的默认行为
+        event.preventDefault();
+
         if (!validateStudentForm()) return;
 
-        // 注意：保存时不需要发送studentId字段，让服务器生成
+        // 创建新学生时不发送 studentId 字段，让数据库自动生成
         const studentData = {
             name: studentNameInput.value,
             gender: studentGenderSelect.value,
             age: parseInt(studentAgeInput.value),
             enrollmentDate: enrollmentDateInput.value
+            // 不包含 studentId
         };
 
         console.log('发送学生数据:', studentData);
         const result = await postData(STUDENTS_API, studentData);
         if (result) {
+            // 检查返回的结果是否包含必要的数据
+            if (result.studentId === null) {
+                console.warn('服务器返回的学生ID为null，可能会影响后续操作');
+            }
+
             alert('学生创建成功!');
-            resetStudentForm();
-            await fetchStudentsByAgeRange();
-        }
-    });
-
-    // 更新学生
-    updateStudentBtn.addEventListener('click', async () => {
-        if (!validateStudentForm()) return;
-
-        const id = studentIdInput.value;
-        if (!id) {
-            alert('请先选择要更新的学生');
-            return;
-        }
-
-        // 更新时使用id字段，而不是studentId
-        const studentData = {
-            id: parseInt(id),  // 确保发送的是id字段
-            name: studentNameInput.value,
-            gender: studentGenderSelect.value,
-            age: parseInt(studentAgeInput.value),
-            enrollmentDate: enrollmentDateInput.value
-        };
-
-        console.log(`更新ID为${id}的学生数据:`, studentData);
-        const result = await updateData(`${STUDENTS_API}/${id}`, studentData);
-        if (result) {
-            alert('学生更新成功!');
             resetStudentForm();
             await fetchStudentsByAgeRange();
         }
@@ -254,28 +240,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-// 修改保存学生函数
-    saveStudentBtn.addEventListener('click', async () => {
-        if (!validateStudentForm()) return;
-
-        const studentData = {
-            name: studentNameInput.value,
-            gender: studentGenderSelect.value,
-            age: parseInt(studentAgeInput.value),
-            enrollmentDate: enrollmentDateInput.value
-        };
-
-        console.log('发送学生数据:', studentData);
-        const result = await postData(STUDENTS_API, studentData);
-        if (result) {
-            alert('学生创建成功!');
-            resetStudentForm();
-            await fetchStudentsByAgeRange();
-        }
-    });
-
     // 修改更新学生函数
-    updateStudentBtn.addEventListener('click', async () => {
+    updateStudentBtn.addEventListener('click', async (event) => {
+        // 阻止可能的默认行为
+        event.preventDefault();
+
         if (!validateStudentForm()) return;
 
         const studentId = studentIdInput.value;
@@ -301,37 +270,29 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-// 改进日期格式化函数
+    // 改进日期格式化函数
     function formatDate(dateString) {
         if (!dateString) return '';
-        try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) {
-                throw new Error('Invalid date');
-            }
-            return date.toLocaleDateString('zh-CN', {
-                year: 'numeric',
-                month: '2-digit',
-                day: '2-digit'
-            });
-        } catch (e) {
-            console.error('日期格式化错误:', e);
-            return dateString;
-        }
+
+        // 尝试解析日期字符串
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+
+        return date.toLocaleDateString('zh-CN', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit'
+        });
     }
 
+    // 格式化日期为HTML input元素所需的格式 (YYYY-MM-DD)
     function formatDateForInput(dateString) {
         if (!dateString) return '';
-        try {
-            const date = new Date(dateString);
-            if (isNaN(date.getTime())) {
-                throw new Error('Invalid date');
-            }
-            return date.toISOString().split('T')[0];
-        } catch (e) {
-            console.error('日期格式化错误:', e);
-            return '';
-        }
+
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return '';
+
+        return date.toISOString().split('T')[0];
     }
 });
 

@@ -43,7 +43,8 @@ public class CustomSqlStrategy extends AbstractSqlStrategy {
         for (int i = 0; i < parameters.length; i++) {
             Param param = parameters[i].getAnnotation(Param.class);
             if (param != null) {
-                sql = sql.replace("#{" + param.value() + "}", "?");
+                String paramName = param.value();
+                sql = sql.replace("#{" + paramName + "}", "?");
             }
         }
         return sql;

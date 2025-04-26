@@ -72,3 +72,12 @@ INSERT INTO student_course (student_id, course_id, score, semester) VALUES
                                                                         (2, 1, 78.0, '2022-2023-1'),
                                                                         (3, 2, 92.5, '2022-2023-1'),
                                                                         (4, 3, 88.0, '2022-2023-1');
+
+ALTER TABLE teacher MODIFY gender VARCHAR(10);
+ALTER TABLE student MODIFY gender VARCHAR(10);
+
+UPDATE teacher SET gender = '男' WHERE gender = 'M';
+UPDATE teacher SET gender = '女' WHERE gender = 'F';
+
+UPDATE student SET gender = '男' WHERE gender = 'M';
+UPDATE student SET gender = '女' WHERE gender = 'F';

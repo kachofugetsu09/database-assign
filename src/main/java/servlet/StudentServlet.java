@@ -7,7 +7,9 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 @WebServlet("/api/students/*")
@@ -47,7 +49,6 @@ public class StudentServlet extends BaseServlet<Student, StudentMapper> {
         }
     }
 
-
     @Override
     protected void handleGetById(int id, HttpServletRequest req, HttpServletResponse resp, PrintWriter out) throws Exception {
         Student student = mapper.selectById(id);
@@ -62,26 +63,19 @@ public class StudentServlet extends BaseServlet<Student, StudentMapper> {
     @Override
     protected Student handleInsert(Student student, HttpServletRequest req) throws Exception {
         try {
-            // 打印日志以便诊断
-            System.out.println("接收到的学生数据: " + student);
+            // 不再尝试重新读取请求体，只使用已解析的 student 对象
+            System.out.println("解析后的 Student: " + student);
 
-            // 确保enrollmentDate不为null
             if (student.getEnrollmentDate() == null) {
                 throw new IllegalArgumentException("入学日期不能为空");
             }
 
-            // 使用SimpleDateFormat解析日期字符串
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String dateStr = sdf.format(student.getEnrollmentDate());
-
-            Student insertedStudent = mapper.insertStudent(
+            return mapper.insertStudent(
                     student.getName(),
                     student.getGender(),
                     student.getAge(),
-                    dateStr
+                    student.getEnrollmentDate()
             );
-
-            return insertedStudent;
         } catch (Exception e) {
             e.printStackTrace();
             throw e;
@@ -91,16 +85,26 @@ public class StudentServlet extends BaseServlet<Student, StudentMapper> {
     @Override
     protected Student handleUpdate(int id, Student student, HttpServletRequest req) throws Exception {
         try {
-            // 使用SimpleDateFormat解析日期字符串
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-            String dateStr = sdf.format(student.getEnrollmentDate());
+            // 使用已经解析好的student对象，不再重新读取请求体
+            System.out.println("更新操作解析后的学生数据: " + student);
+
+            // 验证必要字段
+            if (student.getName() == null || student.getName().isEmpty()) {
+                throw new IllegalArgumentException("学生姓名不能为空");
+            }
+            if (student.getAge() == null) {
+                throw new IllegalArgumentException("学生年龄不能为空");
+            }
+            if (student.getEnrollmentDate() == null) {
+                throw new IllegalArgumentException("入学日期不能为空");
+            }
 
             return mapper.updateStudent(
                     id,
                     student.getName(),
                     student.getGender(),
                     student.getAge(),
-                    dateStr
+                    student.getEnrollmentDate()
             );
         } catch (Exception e) {
             e.printStackTrace();
@@ -108,8 +112,10 @@ public class StudentServlet extends BaseServlet<Student, StudentMapper> {
         }
     }
 
+
     @Override
     protected Student handleDelete(int id) throws Exception {
         return mapper.deleteStudentById(id);
     }
 }
+

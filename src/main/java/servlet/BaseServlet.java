@@ -1,22 +1,31 @@
 package servlet;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import utils.MySqlSessionFactory;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES;
+
 public abstract class BaseServlet<T, M> extends HttpServlet {
     protected M mapper;
-    protected Gson gson = new Gson();
+    protected Gson gson;
     protected final Class<M> mapperClass;
 
     public BaseServlet(Class<M> mapperClass) {
         this.mapperClass = mapperClass;
+        this.gson = new GsonBuilder()
+                .setFieldNamingPolicy(LOWER_CASE_WITH_UNDERSCORES)
+                .setDateFormat("yyyy-MM-dd")  // 修改为 yyyy-MM-dd
+                .serializeNulls()
+                .create();
     }
 
     @Override
@@ -27,6 +36,8 @@ public abstract class BaseServlet<T, M> extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
         setupResponse(resp);
         PrintWriter out = resp.getWriter();
         
@@ -48,46 +59,54 @@ public abstract class BaseServlet<T, M> extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
         setupResponse(resp);
         PrintWriter out = resp.getWriter();
 
         try {
-            // 读取请求体
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = req.getReader().readLine()) != null) {
-                sb.append(line);
-            }
-            String requestBody = sb.toString();
+            // 使用工具方法读取请求体，确保只读取一次
+            String requestBody = getRequestBody(req);
 
             // 调试信息
             System.out.println("接收到的请求体: " + requestBody);
 
-            // 解析JSON
+            if (requestBody == null || requestBody.isEmpty()) {
+                sendErrorResponse(resp, out, HttpServletResponse.SC_BAD_REQUEST, "请求体不能为空");
+                return;
+            }
+
+            // 解析JSON并传递给子类处理
             T entity = gson.fromJson(requestBody, getEntityClass());
+            System.out.println("接收到的实体: " + entity);
             T insertedEntity = handleInsert(entity, req);
 
             resp.setStatus(HttpServletResponse.SC_CREATED);
             out.print(gson.toJson(insertedEntity));
         } catch (Exception e) {
-            e.printStackTrace(); // 详细错误打印到控制台
-            sendErrorResponse(resp, out, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "服务器内部错误: " + e.getMessage());
+            e.printStackTrace();
+            sendErrorResponse(resp, out, HttpServletResponse.SC_INTERNAL_SERVER_ERROR,
+                    "服务器内部错误: " + e.getMessage());
         }
     }
 
-
     @Override
     protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
         setupResponse(resp);
         PrintWriter out = resp.getWriter();
-        
+
         try {
             String pathInfo = req.getPathInfo();
             int id = extractIdFromPath(pathInfo);
-            
-            T entity = gson.fromJson(req.getReader(), getEntityClass());
+
+            // 读取请求体，确保只读取一次
+            String requestBody = getRequestBody(req);
+            T entity = gson.fromJson(requestBody, getEntityClass());
+
             T updatedEntity = handleUpdate(id, entity, req);
-            
+
             if (updatedEntity != null) {
                 out.print(gson.toJson(updatedEntity));
             } else {
@@ -96,12 +115,28 @@ public abstract class BaseServlet<T, M> extends HttpServlet {
         } catch (NumberFormatException e) {
             sendErrorResponse(resp, out, HttpServletResponse.SC_BAD_REQUEST, "无效的ID格式");
         } catch (Exception e) {
+            e.printStackTrace();
             sendErrorResponse(resp, out, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "服务器内部错误: " + e.getMessage());
         }
     }
+    // 添加这个方法到BaseServlet中
+    protected String getRequestBody(HttpServletRequest req) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        try (BufferedReader reader = req.getReader()) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+        }
+        return sb.toString();
+    }
+
+
 
     @Override
     protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setCharacterEncoding("UTF-8");
+        resp.setCharacterEncoding("UTF-8");
         setupResponse(resp);
         PrintWriter out = resp.getWriter();
         

@@ -17,6 +17,18 @@ public abstract class AbstractSqlStrategy implements SqlExecutionStrategy {
         return DriverManager.getConnection(jdbcUrl, username, password);
     }
 
+    protected String camelCaseToSnakeCase(String camelCase) {
+        if (camelCase == null) return null;
+        String regex = "([a-z])([A-Z])";
+        String replacement = "$1_$2";
+        return camelCase.replaceAll(regex, replacement).toLowerCase();
+    }
+
+    // Also modify or add this method to convert parameter names
+    protected String convertParamName(String paramName) {
+        return camelCaseToSnakeCase(paramName);
+    }
+
     protected void setParameterValue(PreparedStatement ps, int index, Object value) throws SQLException {
         if (value == null) {
             ps.setNull(index, Types.NULL);
