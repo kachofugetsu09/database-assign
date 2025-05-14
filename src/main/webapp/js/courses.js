@@ -32,6 +32,9 @@ document.addEventListener('DOMContentLoaded', () => {
         event.preventDefault();
     });
 
+    // 初始化页面时禁用更新按钮
+    updateCourseBtn.disabled = true;
+
     async function testApiConnection() {
         try {
             const response = await fetch(COURSES_API);
@@ -62,16 +65,17 @@ document.addEventListener('DOMContentLoaded', () => {
             teacherId: teacherIdInput.value ? parseInt(teacherIdInput.value) : null
         };
 
+        // 如果提供了课程ID，则添加到请求数据中
+        if (courseIdInput.value) {
+            courseData.courseId = parseInt(courseIdInput.value);
+        }
+
         console.log('发送课程数据:', courseData);
         const result = await postData(COURSES_API, courseData);
         if (result) {
-            if (result.courseId === null) {
-                console.warn('服务器返回的课程ID为null，可能会影响后续操作');
-            }
-
             alert('课程创建成功!');
             resetCourseForm();
-            await fetchCoursesByTeacher();
+            await loadAllCourses();
         }
     });
 
@@ -110,19 +114,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // 初始化页面
     async function initPage() {
-        // 加载课程列表
-        await fetchCoursesByTeacher();
+        await loadAllCourses();
     }
 
-    // 按教师获取课程
-    async function fetchCoursesByTeacher() {
-        const teacherId = queryTeacherIdInput.value;
-        if (teacherId) {
-            console.log(`查询教师ID为${teacherId}的课程`);
-            const courses = await fetchData(`${COURSES_API}?teacherId=${teacherId}`);
-            if (courses) {
-                populateCourseTable(courses);
-            }
+    // 加载所有课程
+    async function loadAllCourses() {
+        console.log('加载所有课程');
+        const courses = await fetchData(COURSES_API);
+        if (courses) {
+            populateCourseTable(courses);
         }
     }
 
@@ -136,15 +136,20 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('请输入课程学分');
             return false;
         }
+        const credit = parseInt(creditInput.value);
+        if (credit < 1 || credit > 10) {
+            alert('学分必须在1-10之间');
+            return false;
+        }
         return true;
     }
 
     // 重置课程表单
     function resetCourseForm() {
-        courseIdInput.value = '';
         courseForm.reset();
+        courseIdInput.disabled = false; // 重置时启用课程ID输入
         saveCourseBtn.disabled = false;
-        updateCourseBtn.disabled = false;
+        updateCourseBtn.disabled = true;
     }
 
     // 填充课程表格
@@ -159,16 +164,15 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         courses.forEach(course => {
-            const courseId = course.courseId || '未知';
             const row = document.createElement('tr');
             row.innerHTML = `
-                <td>${courseId}</td>
+                <td>${course.courseId || ''}</td>
                 <td>${course.courseName || ''}</td>
                 <td>${course.credit || ''}</td>
                 <td>${course.teacherId || ''}</td>
                 <td>
-                    <button class="btn btn-sm btn-warning edit-course" data-id="${courseId}">编辑</button>
-                    <button class="btn btn-sm btn-danger delete-course" data-id="${courseId}">删除</button>
+                    <button class="btn btn-sm btn-warning edit-course" data-id="${course.courseId}">编辑</button>
+                    <button class="btn btn-sm btn-danger delete-course" data-id="${course.courseId}">删除</button>
                 </td>
             `;
             courseTableBody.appendChild(row);
@@ -183,19 +187,17 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.edit-course').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = btn.getAttribute('data-id');
-
-                if (!id || id === '未知') {
-                    alert('无法编辑：课程ID无效');
-                    return;
-                }
-
                 console.log(`编辑ID为${id}的课程`);
                 const course = await fetchData(`${COURSES_API}/${id}`);
                 if (course) {
-                    courseIdInput.value = course.courseId || '';
-                    courseNameInput.value = course.courseName || '';
-                    creditInput.value = course.credit || '';
+                    courseIdInput.value = course.courseId;
+                    courseIdInput.disabled = true; // 编辑时禁用课程ID输入
+                    courseNameInput.value = course.courseName;
+                    creditInput.value = course.credit;
                     teacherIdInput.value = course.teacherId || '';
+
+                    saveCourseBtn.disabled = true;
+                    updateCourseBtn.disabled = false;
                 }
             });
         });
@@ -204,18 +206,12 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.delete-course').forEach(btn => {
             btn.addEventListener('click', async () => {
                 const id = btn.getAttribute('data-id');
-
-                if (!id || id === '未知') {
-                    alert('无法删除：课程ID无效');
-                    return;
-                }
-
                 if (confirm(`确定要删除ID为${id}的课程吗?`)) {
                     console.log(`删除ID为${id}的课程`);
                     const result = await deleteData(`${COURSES_API}/${id}`);
                     if (result) {
                         alert('课程删除成功!');
-                        await fetchCoursesByTeacher();
+                        await loadAllCourses();
                     }
                 }
             });
@@ -235,7 +231,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const courseData = {
-            courseId: parseInt(courseId),
             courseName: courseNameInput.value,
             credit: parseInt(creditInput.value),
             teacherId: teacherIdInput.value ? parseInt(teacherIdInput.value) : null
@@ -246,7 +241,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (result) {
             alert('课程更新成功!');
             resetCourseForm();
-            await fetchCoursesByTeacher();
+            await loadAllCourses();
         }
     });
 }); 
