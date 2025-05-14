@@ -10,6 +10,13 @@
             max-width: 960px;
             margin-top: 30px;
         }
+        .form-label {
+            font-weight: bold;
+        }
+        .required-field::after {
+            content: " *";
+            color: red;
+        }
     </style>
 </head>
 <body>
@@ -26,26 +33,47 @@
     <!-- 创建/编辑课程表单 -->
     <div class="card mb-4">
         <div class="card-header">
-            添加/更新课程
+            <div class="d-flex justify-content-between align-items-center">
+                <span>添加/更新课程</span>
+                <div>
+                    <button type="button" class="btn btn-primary" id="saveCourse">保存</button>
+                    <button type="button" class="btn btn-success" id="updateCourse">更新</button>
+                    <button type="button" class="btn btn-secondary" id="resetCourseForm">重置</button>
+                </div>
+            </div>
         </div>
         <div class="card-body">
             <form id="courseForm">
-                <input type="hidden" id="courseId">
-                <div class="mb-3">
-                    <label for="courseName" class="form-label">课程名称</label>
-                    <input type="text" class="form-control" id="courseName" required>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="courseId" class="form-label">课程ID</label>
+                            <input type="number" class="form-control" id="courseId" placeholder="添加时留空则自动生成">
+                            <div class="form-text">添加新课程时可不填，系统将自动生成ID</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="courseName" class="form-label required-field">课程名称</label>
+                            <input type="text" class="form-control" id="courseName" required>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="credit" class="form-label">学分</label>
-                    <input type="number" class="form-control" id="credit" required>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="credit" class="form-label required-field">学分</label>
+                            <input type="number" class="form-control" id="credit" required min="1" max="10">
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mb-3">
+                            <label for="teacherId" class="form-label">教师ID</label>
+                            <input type="number" class="form-control" id="teacherId" placeholder="可选">
+                            <div class="form-text">可选字段，可后续更新</div>
+                        </div>
+                    </div>
                 </div>
-                <div class="mb-3">
-                    <label for="teacherId" class="form-label">教师ID</label>
-                    <input type="number" class="form-control" id="teacherId">
-                </div>
-                <button type="button" class="btn btn-primary" id="saveCourse">保存</button>
-                <button type="button" class="btn btn-success" id="updateCourse">更新</button>
-                <button type="button" class="btn btn-secondary" id="resetCourseForm">重置</button>
             </form>
         </div>
     </div>
