@@ -12,6 +12,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+import static com.google.gson.FieldNamingPolicy.IDENTITY;
 import static com.google.gson.FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES;
 
 public abstract class BaseServlet<T, M> extends HttpServlet {
@@ -23,7 +24,7 @@ public abstract class BaseServlet<T, M> extends HttpServlet {
         this.mapperClass = mapperClass;
         this.gson = new GsonBuilder()
                 .setFieldNamingPolicy(LOWER_CASE_WITH_UNDERSCORES)
-                .setDateFormat("yyyy-MM-dd")  // 修改为 yyyy-MM-dd
+                .setDateFormat("yyyy-MM-dd")
                 .serializeNulls()
                 .create();
     }

@@ -8,13 +8,13 @@ import annotations.Where;
 import java.util.List;
 
 public interface CourseMapper {
-    @SQL("SELECT * FROM course")
+    @SQL("SELECT course_id AS courseId, course_name AS courseName, credit, teacher_id AS teacherId FROM course")
     List<Course> selectAllCourses();
     
-    @Where("course_id = #{courseId}")
+    @SQL("SELECT course_id AS courseId, course_name AS courseName, credit, teacher_id AS teacherId FROM course WHERE course_id = #{courseId}")
     Course selectById(@Param("courseId") Integer courseId);
     
-    @SQL("SELECT * FROM course WHERE teacher_id = #{teacherId}")
+    @SQL("SELECT course_id AS courseId, course_name AS courseName, credit, teacher_id AS teacherId FROM course WHERE teacher_id = #{teacherId}")
     List<Course> selectCoursesByTeacher(@Param("teacherId") Integer teacherId);
     
     @SQL("INSERT INTO course (course_id, course_name, credit, teacher_id) VALUES (#{courseId}, #{courseName}, #{credit}, #{teacherId})")
@@ -25,7 +25,6 @@ public interface CourseMapper {
         @Param("teacherId") Integer teacherId
     );
     
-    @Where("course_id = #{courseId}")
     @SQL("UPDATE course SET course_name = #{courseName}, credit = #{credit}, teacher_id = #{teacherId} WHERE course_id = #{courseId}")
     Course updateCourse(
         @Param("courseId") Integer courseId,
@@ -34,7 +33,6 @@ public interface CourseMapper {
         @Param("teacherId") Integer teacherId
     );
     
-    @Where("course_id = #{courseId}")
     @SQL("DELETE FROM course WHERE course_id = #{courseId}")
     Course deleteCourseById(@Param("courseId") Integer courseId);
 }
