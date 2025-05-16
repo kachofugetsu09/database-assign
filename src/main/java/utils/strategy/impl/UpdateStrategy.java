@@ -37,16 +37,20 @@ public class UpdateStrategy extends AbstractSqlStrategy {
             }
 
             // 设置SET子句中的参数值
-            for (int i = 0; i < nonIdParams.size(); i++) {
-                String paramName = nonIdParams.get(i);
+            int paramIndex = 1;
+            for (String paramName : nonIdParams) {
                 int argIndex = paramNameToArgIndex.get(paramName);
-                setParameterValue(preparedStatement, i + 1, args[argIndex]);
+                Object value = args[argIndex];
+                System.out.println("Setting parameter " + paramIndex + " (" + paramName + ") = " + value);
+                setParameterValue(preparedStatement, paramIndex++, value);
             }
 
             // 设置WHERE子句中的ID参数
             if (idParamName != null) {
                 int idArgIndex = paramNameToArgIndex.get(idParamName);
-                setParameterValue(preparedStatement, nonIdParams.size() + 1, args[idArgIndex]);
+                Object idValue = args[idArgIndex];
+                System.out.println("Setting ID parameter " + paramIndex + " (" + idParamName + ") = " + idValue);
+                setParameterValue(preparedStatement, paramIndex, idValue);
             }
 
             System.out.println("UPDATE SQL: " + preparedStatement);
@@ -72,11 +76,14 @@ public class UpdateStrategy extends AbstractSqlStrategy {
 
         Parameter[] parameters = method.getParameters();
         List<String> setClauses = new ArrayList<>();
+        String idParamName = null;
 
         for (Parameter param : parameters) {
             if (param.isAnnotationPresent(Param.class)) {
                 String paramName = param.getAnnotation(Param.class).value();
-                if (!isIdParam(paramName)) {
+                if (isIdParam(paramName)) {
+                    idParamName = paramName;
+                } else {
                     String dbColumnName = camelCaseToSnakeCase(paramName);
                     setClauses.add(dbColumnName + " = ?");
                 }
@@ -86,7 +93,6 @@ public class UpdateStrategy extends AbstractSqlStrategy {
         sb.append(String.join(", ", setClauses));
 
         // 构建WHERE子句，使用ID参数
-        String idParamName = findIdParamName(parameters);
         if (idParamName != null) {
             String idColumnName = camelCaseToSnakeCase(idParamName);
             sb.append(" WHERE ").append(idColumnName).append(" = ?");
