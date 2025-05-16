@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public abstract class AbstractSqlStrategy implements SqlExecutionStrategy {
     protected static String jdbcUrl = "jdbc:mysql://localhost:3306/mybatis_db";
     protected static String username = "root";
-    protected static String password = "Qazwsxzyc12!";
+    protected static String password = "12345678";
 
     protected Connection getConnection() throws SQLException {
         return DriverManager.getConnection(jdbcUrl, username, password);
