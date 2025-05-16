@@ -23,7 +23,7 @@ public abstract class BaseServlet<T, M> extends HttpServlet {
     public BaseServlet(Class<M> mapperClass) {
         this.mapperClass = mapperClass;
         this.gson = new GsonBuilder()
-                .setFieldNamingPolicy(LOWER_CASE_WITH_UNDERSCORES)
+                .setFieldNamingPolicy(IDENTITY)
                 .setDateFormat("yyyy-MM-dd")
                 .serializeNulls()
                 .create();
@@ -80,6 +80,18 @@ public abstract class BaseServlet<T, M> extends HttpServlet {
             // 解析JSON并传递给子类处理
             T entity = gson.fromJson(requestBody, getEntityClass());
             System.out.println("接收到的实体: " + entity);
+            
+            // 打印实体类的所有字段值
+            System.out.println("实体类字段值:");
+            for (java.lang.reflect.Field field : entity.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                try {
+                    System.out.println(field.getName() + " = " + field.get(entity));
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+            
             T insertedEntity = handleInsert(entity, req);
 
             resp.setStatus(HttpServletResponse.SC_CREATED);
