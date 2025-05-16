@@ -15,7 +15,7 @@ import lombok.Setter;
 public class Teacher {
     private Integer teacherId;
     private String name;
-    private Character gender;
+    private String gender;
     private String title;
 
     @Override
@@ -23,7 +23,7 @@ public class Teacher {
         return "Teacher{" +
                 "teacherId=" + teacherId +
                 ", name='" + name + '\'' +
-                ", gender=" + gender +
+                ", gender='" + gender + '\'' +
                 ", title='" + title + '\'' +
                 '}';
     }
