@@ -1,3 +1,4 @@
+CREATE DATABASE IF NOT EXISTS mybatis_db;
 -- 使用数据库
 USE mybatis_db;
 
