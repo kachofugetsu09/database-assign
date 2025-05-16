@@ -4,7 +4,6 @@ package mapper;
 import entity.Course;
 import annotations.Param;
 import annotations.SQL;
-import annotations.Where;
 import java.util.List;
 
 public interface CourseMapper {
@@ -18,21 +17,24 @@ public interface CourseMapper {
     List<Course> selectCoursesByTeacher(@Param("teacherId") Integer teacherId);
     
     @SQL("INSERT INTO course (course_id, course_name, credit, teacher_id) VALUES (#{courseId}, #{courseName}, #{credit}, #{teacherId})")
-    Course insertCourse(
+    boolean insertCourse(
         @Param("courseId") Integer courseId,
         @Param("courseName") String courseName,
         @Param("credit") Integer credit,
         @Param("teacherId") Integer teacherId
     );
     
+    @SQL("SELECT course_id AS courseId, course_name AS courseName, credit, teacher_id AS teacherId FROM course WHERE course_id = #{courseId}")
+    Course getCourseById(@Param("courseId") Integer courseId);
+    
     @SQL("UPDATE course SET course_name = #{courseName}, credit = #{credit}, teacher_id = #{teacherId} WHERE course_id = #{courseId}")
-    Course updateCourse(
-        @Param("courseId") Integer courseId,
+    boolean updateCourse(
         @Param("courseName") String courseName,
         @Param("credit") Integer credit,
-        @Param("teacherId") Integer teacherId
+        @Param("teacherId") Integer teacherId,
+        @Param("courseId") Integer courseId
     );
     
     @SQL("DELETE FROM course WHERE course_id = #{courseId}")
-    Course deleteCourseById(@Param("courseId") Integer courseId);
-}
+    boolean deleteCourseById(@Param("courseId") Integer courseId);
+}                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
