@@ -39,7 +39,7 @@ CREATE TABLE student_course (
                                 id INT AUTO_INCREMENT PRIMARY KEY,
                                 student_id INT,
                                 course_id INT,
-                                score DECIMAL(5,2),
+                                score INT,
                                 semester VARCHAR(20),
                                 FOREIGN KEY (student_id) REFERENCES student(student_id) ON DELETE CASCADE,
                                 FOREIGN KEY (course_id) REFERENCES course(course_id) ON DELETE CASCADE,
@@ -68,11 +68,11 @@ INSERT INTO student (name, gender, age, enrollment_date) VALUES
 
 -- 选课数据
 INSERT INTO student_course (student_id, course_id, score, semester) VALUES
-                                                                        (1, 1, 85.5, '2022-2023-1'),
-                                                                        (1, 2, 90.0, '2022-2023-1'),
-                                                                        (2, 1, 78.0, '2022-2023-1'),
-                                                                        (3, 2, 92.5, '2022-2023-1'),
-                                                                        (4, 3, 88.0, '2022-2023-1');
+                                                                        (1, 1, 85, '2022-2023-1'),
+                                                                        (1, 2, 90, '2022-2023-1'),
+                                                                        (2, 1, 78, '2022-2023-1'),
+                                                                        (3, 2, 92, '2022-2023-1'),
+                                                                        (4, 3, 88, '2022-2023-1');
 
 ALTER TABLE teacher MODIFY gender VARCHAR(10);
 ALTER TABLE student MODIFY gender VARCHAR(10);

@@ -23,7 +23,7 @@ public abstract class BaseServlet<T, M> extends HttpServlet {
     public BaseServlet(Class<M> mapperClass) {
         this.mapperClass = mapperClass;
         this.gson = new GsonBuilder()
-                .setFieldNamingPolicy(IDENTITY)
+                .setFieldNamingPolicy(LOWER_CASE_WITH_UNDERSCORES)
                 .setDateFormat("yyyy-MM-dd")
                 .serializeNulls()
                 .create();

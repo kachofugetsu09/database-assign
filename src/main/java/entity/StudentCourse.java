@@ -2,6 +2,7 @@
 package entity;
 
 import annotations.Table;
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,9 +15,16 @@ import lombok.Setter;
 @NoArgsConstructor
 public class StudentCourse {
     private Integer id;
+    
+    @SerializedName("studentId")
     private Integer studentId;
+    
+    @SerializedName("courseId")
     private Integer courseId;
-    private Double score;
+    
+    @SerializedName("score")
+    private Integer score;
+    
     private String semester;
 
     @Override
