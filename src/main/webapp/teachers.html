@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>教师管理 - 教务系统</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <style>
+    .container {
+      max-width: 960px;
+      margin-top: 30px;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item"><a href="index.html">首页</a></li>
+      <li class="breadcrumb-item active" aria-current="page">教师管理</li>
+    </ol>
+  </nav>
+
+  <h1 class="mb-4">教师管理</h1>
+
+  <!-- 教师表单 -->
+  <div class="card mb-4">
+    <div class="card-header">
+      教师信息
+    </div>
+    <div class="card-body">
+      <form id="teacherForm">
+        <div class="mb-3">
+          <label for="teacherId" class="form-label">教师ID</label>
+          <input type="text" class="form-control" id="teacherId" readonly>
+        </div>
+        <div class="mb-3">
+          <label for="teacherName" class="form-label">姓名</label>
+          <input type="text" class="form-control" id="teacherName" required>
+        </div>
+        <div class="mb-3">
+          <label for="teacherGender" class="form-label">性别</label>
+          <select class="form-select" id="teacherGender" required>
+            <option value="男">男</option>
+            <option value="女">女</option>
+          </select>
+        </div>
+        <div class="mb-3">
+          <label for="teacherTitle" class="form-label">职称</label>
+          <input type="text" class="form-control" id="teacherTitle" required>
+        </div>
+        <button type="button" class="btn btn-primary" id="saveTeacher">保存</button>
+        <button type="button" class="btn btn-secondary" id="updateTeacher" disabled>更新</button>
+        <button type="button" class="btn btn-warning" id="resetTeacherForm">重置</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 查询功能 -->
+  <div class="card mb-4">
+    <div class="card-header">
+      查询教师
+    </div>
+    <div class="card-body">
+      <input type="number" class="form-control mb-2" id="queryTeacherId" placeholder="输入教师ID">
+      <button type="button" class="btn btn-info" id="fetchTeacherById">查询</button>
+    </div>
+  </div>
+
+  <!-- 教师列表 -->
+  <div class="card">
+    <div class="card-header">
+      教师列表
+    </div>
+    <div class="card-body">
+      <div class="table-responsive">
+        <table class="table table-striped">
+          <thead>
+          <tr>
+            <th>ID</th>
+            <th>姓名</th>
+            <th>性别</th>
+            <th>职称</th>
+            <th>操作</th>
+          </tr>
+          </thead>
+          <tbody id="teacherTableBody">
+          <!-- 教师数据将在这里动态加载 -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="js/common.js"></script>
+<script src="js/teachers.js"></script>
+</body>
+</html>

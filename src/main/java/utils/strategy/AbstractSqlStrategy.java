@@ -27,6 +27,7 @@ public abstract class AbstractSqlStrategy implements SqlExecutionStrategy {
     // Also modify or add this method to convert parameter names
     protected String convertParamName(String paramName) {
         return camelCaseToSnakeCase(paramName);
+
     }
 
     protected void setParameterValue(PreparedStatement ps, int index, Object value) throws SQLException {
@@ -104,7 +105,6 @@ public abstract class AbstractSqlStrategy implements SqlExecutionStrategy {
                 return String.class;
             case Types.DATE:
                 return java.util.Date.class;
-            // 添加其他类型的映射...
             default:
                 return Object.class;
         }
@@ -120,7 +120,7 @@ public abstract class AbstractSqlStrategy implements SqlExecutionStrategy {
                 return rs.getString(columnIndex);
             case Types.DATE:
                 return rs.getDate(columnIndex);
-            // 添加其他类型的处理...
+
             default:
                 return rs.getObject(columnIndex);
         }

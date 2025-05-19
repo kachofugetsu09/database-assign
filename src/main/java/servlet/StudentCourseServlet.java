@@ -27,6 +27,7 @@ public class StudentCourseServlet extends BaseServlet<StudentCourse, StudentCour
         String courseIdStr = req.getParameter("courseId");
 
         if (studentIdStr != null) {
+
             int studentId = Integer.parseInt(studentIdStr);
             List<StudentCourse> studentCourses = mapper.selectByStudentId(studentId);
             out.print(gson.toJson(studentCourses));
@@ -42,7 +43,6 @@ public class StudentCourseServlet extends BaseServlet<StudentCourse, StudentCour
     @Override
     protected void handleGetById(int id, HttpServletRequest req, HttpServletResponse resp, PrintWriter out) throws Exception {
         StudentCourse studentCourse = mapper.selectById(id);
-
         if (studentCourse != null) {
             out.print(gson.toJson(studentCourse));
         } else {
