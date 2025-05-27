@@ -14,7 +14,7 @@ public interface StudentCourseMapper {
 
     StudentCourse insertStudentCourse(@Param("studentId") int studentId, 
                                     @Param("courseId") int courseId, 
-                                    @Param("score") int score, 
+                                    @Param("score") double score, 
                                     @Param("semester") String semester);
 
     @Where("id = #{id}")
@@ -24,15 +24,16 @@ public interface StudentCourseMapper {
     StudentCourse updateStudentCourse(@Param("id") int id, 
                                     @Param("studentId") int studentId, 
                                     @Param("courseId") int courseId, 
-                                    @Param("score") int score, 
+                                    @Param("score") double score, 
                                     @Param("semester") String semester);
 
-    @SQL("SELECT id, student_id AS studentId, course_id AS courseId, score AS score, semester FROM student_course WHERE student_id = #{studentId}")
+    @SQL("SELECT * FROM student_course WHERE student_id = #{studentId}")
     List<StudentCourse> selectByStudentId(@Param("studentId") int studentId);
 
-    @SQL("SELECT id, student_id AS studentId, course_id AS courseId, score AS score, semester FROM student_course WHERE course_id = #{courseId}")
+    @SQL("SELECT * FROM student_course WHERE course_id = #{courseId}")
     List<StudentCourse> selectByCourseId(@Param("courseId") int courseId);
 
-    @SQL("SELECT id, student_id AS studentId, course_id AS courseId, score AS score, semester FROM student_course")
-    List<StudentCourse> selectAllStudentCourses();
+    @SQL("SELECT * FROM student_course")
+    List<StudentCourse> selectAll();
+
 }

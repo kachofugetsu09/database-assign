@@ -19,7 +19,6 @@ public class ApplicationRegistration {
         registerServlet(context, "teacherServlet", "/api/teachers/*", new TeacherServlet());
         registerServlet(context, "courseServlet", "/api/courses/*", new CourseServlet());
         registerServlet(context, "studentCourseServlet", "/api/student-courses/*", new StudentCourseServlet());
-        registerServlet(context, "userServlet", "/api/users/*", new UserServlet());
     }
     
     private static void registerServlet(Context context, String servletName, String urlPattern, HttpServlet servlet) {

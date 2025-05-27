@@ -1,4 +1,3 @@
-// Course.java
 package entity;
 
 import annotations.Table;

@@ -1,7 +1,7 @@
-// Teacher.java
 package entity;
 
 import annotations.Table;
+import com.google.gson.annotations.SerializedName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +13,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Teacher {
+    @SerializedName("teacherId")
     private Integer teacherId;
     private String name;
     private String gender;
